@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IuserService {
     String registerNewUser(RegisterDTO registerDTO);
-    String login(LoginDTO loginDTO);
+    String[] login(LoginDTO loginDTO);
     String logout(String token);
     String forgotPassword(String token, String password);
     String delete(String token);

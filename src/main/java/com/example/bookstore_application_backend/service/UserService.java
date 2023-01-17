@@ -46,16 +46,19 @@ public class UserService implements IuserService{
     //--------------------------------- User Login (Both Admin or User)---------------------------------
 
     @Override
-    public String login(LoginDTO loginDTO) {
-        if (userRepository.findByEmail(loginDTO.getEmail()) != null) {
-            if (userRepository.findByEmail(loginDTO.getEmail()).getPassword().equals(loginDTO.getPassword())) {
+    public String[] login(LoginDTO loginDTO) {
+        UserModel userModel = userRepository.findByEmail(loginDTO.getEmail());
+        if (userModel != null) {
+            if (userModel.getPassword().equals(loginDTO.getPassword())) {
+                String [] obj = new String[2];
                 String token = jwtUtils.generateToken(loginDTO);
-                UserModel userModel = userRepository.findByEmail(loginDTO.getEmail());
                 userModel.setLogin(true);
                 userModel.setId(userModel.getId());
                 userRepository.save(userModel);
                 emailService.sendMail(loginDTO.getEmail(), "Login Successful");
-                return token;
+                obj[0] = token;
+                obj[1] = userModel.getRole();
+                return obj;
             }
             throw new BookStoreException("please check Your Password");
         }
@@ -67,7 +70,7 @@ public class UserService implements IuserService{
     public String logout(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel userModel = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(userModel.getEmail()).isLogin()) {
+        if (userModel.isLogin()) {
             userModel.setLogin(false);
             userRepository.save(userModel);
             return "User Logout Successfully";
@@ -79,7 +82,7 @@ public class UserService implements IuserService{
     public String forgotPassword(String token, String password) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel resetPassword = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(resetPassword.getEmail()).isLogin()) {
+        if (resetPassword.isLogin()) {
             resetPassword.setPassword(password);
             resetPassword.setLogin(false);
             userRepository.save(resetPassword);
@@ -94,7 +97,7 @@ public class UserService implements IuserService{
     public String delete(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel delete = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(delete.getEmail()).isLogin()) {
+        if (delete.isLogin()) {
             userRepository.deleteById(delete.getId());
             return "user deleted";
         }
@@ -107,7 +110,7 @@ public class UserService implements IuserService{
     public String deleteUserAsAdmin(String token, int id) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel User = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(User.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(User.getEmail()).isLogin()) {
+        if (User.getRole().equals("Admin") && User.isLogin()) {
             if (userRepository.findById(id).isPresent()) {
                 userRepository.deleteById(id);
                 return "user deleted";
@@ -150,7 +153,7 @@ public class UserService implements IuserService{
     public UserModel getUserData(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             return userRepository.findById(user.getId()).get();
         }
         throw new BookStoreException("Invalid User");
@@ -162,8 +165,8 @@ public class UserService implements IuserService{
     public List<UserModel> showAllUsers(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
-            if (userRepository.findById(user.getId()).get().getRole().equals("Admin")) {
+        if (user.isLogin()) {
+            if (user.getRole().equals("Admin")) {
                 return userRepository.findAll();
             }
             throw new BookStoreException("Not Accessable to You");

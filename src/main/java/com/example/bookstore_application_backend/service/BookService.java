@@ -38,7 +38,7 @@ public class BookService implements IbookService{
     public BookModel addBooks(String token, BookDTO bookDTO) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.getRole().equals("Admin") && user.isLogin()) {
             BookModel bookModel = modelMapper.map(bookDTO, BookModel.class);
             return bookRepository.save(bookModel);
         }
@@ -50,7 +50,7 @@ public class BookService implements IbookService{
     public BookModel updateBooksData(String token, int id, BookDTO bookDTO) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.getRole().equals("Admin") && user.isLogin()) {
             if (bookRepository.findById(id).isPresent()) {
                 BookModel book = bookRepository.findById(id).get();
                 BookModel updateBook = modelMapper.map(bookDTO, BookModel.class);
@@ -85,7 +85,7 @@ public class BookService implements IbookService{
     public String deleteBookById(String token, int id) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.getRole().equals("Admin") && user.isLogin()) {
             if (bookRepository.findById(id).isPresent()) {
                 bookRepository.deleteById(id);
                 return "Book Data Deleted successful";

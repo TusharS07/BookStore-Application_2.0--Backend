@@ -43,7 +43,7 @@ public class CartService implements IcartService {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         CartModel cartModel = cartRepository.findById(user.getCartModel().getCartId()).get();
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             BookModel book = bookRepository.findById(bookId).get();
             if (book != null) {
                 if (cartBooksRepository.findByCartIdAndBookId(cartModel.getCartId(), bookId) == null) {
@@ -67,7 +67,7 @@ public class CartService implements IcartService {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         CartModel cartModel = cartRepository.findById(user.getCartModel().getCartId()).get();
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             BookModel book = bookRepository.findById(bookId).get();
             CartBooksData cartBooks = cartBooksRepository.findByCartIdAndBookId(cartModel.getCartId(), bookId);
             if (cartBooks != null) {
@@ -96,7 +96,7 @@ public class CartService implements IcartService {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         CartModel cartModel = cartRepository.findById(user.getCartModel().getCartId()).get();
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             if (cartBooksRepository.findById(cartBookId).isPresent()) {
                 if (cartBooksRepository.findById(cartBookId).get().getCart().getCartId() == cartModel.getCartId()) {
                     cartBooksRepository.deleteById(cartBookId);
@@ -117,7 +117,7 @@ public class CartService implements IcartService {
     public List<CartBooksData> showCartRecord(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             List<CartBooksData> availableBooksInCart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
             if (availableBooksInCart.isEmpty()) {
                 throw new BookStoreException("Empty Cart");

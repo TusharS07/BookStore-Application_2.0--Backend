@@ -50,7 +50,7 @@ public class OrderService implements IorderService {
     public OrderModel placeOrder(String token, OrderDTO orderDTO) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             List<CartBooksData> cart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
             List<BookModel> orderedBooks = new ArrayList<>();
 
@@ -140,7 +140,7 @@ public class OrderService implements IorderService {
     public List<OrderModel> showUserAllOrders(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             List<OrderModel> userOrders = orderRepository.findAllByUserId(user.getId());
             if (userOrders.isEmpty()) {
                 throw new BookStoreException("Empty Order List");
@@ -155,7 +155,7 @@ public class OrderService implements IorderService {
     public String cancelOrder(String token, int orderId) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             if (orderRepository.findById(orderId).isPresent()) {
                 OrderModel order = orderRepository.findById(orderId).get();
                 if (order.getUserId() == user.getId()) {
@@ -186,7 +186,7 @@ public class OrderService implements IorderService {
     public OrderModel changeMobileNo(String token, int orderId, String mobNo) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             if (orderRepository.findById(orderId).isPresent()) {
                 OrderModel order = orderRepository.findById(orderId).get();
                 if (order.getUserId() == user.getId()) {
@@ -206,7 +206,7 @@ public class OrderService implements IorderService {
     public OrderModel getOrderDetailsByOrderIdForUser(String token, int orderId) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.isLogin()) {
             if (orderRepository.findById(orderId).isPresent()) {
                 OrderModel order = orderRepository.findById(orderId).get();
                 if (order.getUserId() == user.getId()) {
@@ -228,7 +228,7 @@ public class OrderService implements IorderService {
     public OrderModel getOrderDetailsByOrderIdForAdmin(String token, int orderId) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.getRole().equals("Admin") && user.isLogin()) {
             if (orderRepository.findById(orderId).isPresent()) {
                 return orderRepository.findById(orderId).get();
             }
@@ -243,7 +243,7 @@ public class OrderService implements IorderService {
     public List<OrderModel> adminGetAllOrderDetails(String token) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        if (userRepository.findByEmail(user.getEmail()).getRole().equals("Admin") && userRepository.findByEmail(user.getEmail()).isLogin()) {
+        if (user.getRole().equals("Admin") && user.isLogin()) {
             List<OrderModel> userOrders = orderRepository.findAll();
             if (userOrders.isEmpty()) {
                 throw new BookStoreException("Empty Order List");

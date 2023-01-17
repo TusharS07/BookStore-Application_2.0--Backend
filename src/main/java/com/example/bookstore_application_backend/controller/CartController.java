@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/CartPage")
+@CrossOrigin("*")
 public class CartController {
 
     @Autowired

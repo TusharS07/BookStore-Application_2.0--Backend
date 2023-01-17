@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/UserPage")
+@CrossOrigin("*")
 public class UserController {
     @Autowired
     IuserService iuserService;
@@ -23,7 +24,7 @@ public class UserController {
     //--------------------------------- Add New User Data ---------------------------------
 
     @PostMapping("/Register_New_User")
-    public ResponseEntity<Response> registerNewUser(@Valid @RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<Response> registerNewUser(@RequestBody RegisterDTO registerDTO) {
         iuserService.registerNewUser(registerDTO);
         Response response = new Response(registerDTO, "User Registered Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -33,13 +34,14 @@ public class UserController {
 
     @PostMapping("/Login")
     public ResponseEntity<Response> loginPage(@RequestBody LoginDTO loginDTO) {
-        String token = iuserService.login(loginDTO);
-        Response response = new Response(token, "Login Successful");
+
+        String [] obj = iuserService.login(loginDTO);
+        Response response = new Response(obj, "Login Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //--------------------------------- User Logout (Both User or Admin)---------------------------------
-    @PutMapping("/Logout")
+    @PostMapping("/Logout")
     public ResponseEntity<Response> logOutUser(@RequestHeader String token) {
         iuserService.logout(token);
         Response response = new Response("User Logout", "SuccessFully Logout");
@@ -72,7 +74,7 @@ public class UserController {
 
     //--------------------------------- Get User Data (Only User) ---------------------------------
     @GetMapping("/Get_Data/user")
-    public ResponseEntity<Response> getUserData(@RequestHeader String token) {
+    public ResponseEntity<Response> getUserData(@RequestParam String token) {
         UserModel getUserData = iuserService.getUserData(token);
         Response response = new Response(getUserData, "User Data");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -81,7 +83,7 @@ public class UserController {
     //----------------------------- Update UserData (Only User)--------------------------------
 
     @PutMapping("/UpdateData/user")
-    public ResponseEntity<Response> updateData(@Valid @RequestBody UpdateDTO updateDTO, @RequestHeader String token)  {
+    public ResponseEntity<Response> updateData(@RequestBody UpdateDTO updateDTO, @RequestHeader String token)  {
         UserModel update = iuserService.update(updateDTO, token);
         Response response = new Response(update, "User Updated Successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/BooksPage")
+@CrossOrigin("*")
 public class BookController {
 
     @Autowired
@@ -21,7 +22,7 @@ public class BookController {
 
     //----------------------------- Add New Books (Only Admin)----------------------------------------------------------------------
     @PostMapping("/Add_Books/Admin")
-    public ResponseEntity<Response> addBooks(@RequestHeader String token, @RequestBody BookDTO bookDTO) {
+    public ResponseEntity<Response> addBooks(@RequestParam String token, @RequestBody BookDTO bookDTO) {
         ibookService.addBooks(token,bookDTO);
         Response response = new Response(bookDTO, "Book Added Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
