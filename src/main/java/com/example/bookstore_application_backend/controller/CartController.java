@@ -22,23 +22,31 @@ public class CartController {
 
     //--------------------------------- Add New Cart Data (Only User)---------------------------------
     @PostMapping("/AddToCart")
-    public ResponseEntity<Response> addToCart(@RequestHeader String token, @RequestParam int bookId) {
+    public ResponseEntity<Response> addToCart(@RequestParam String token, @RequestParam int bookId) {
         CartBooksData cart = icartService.addToCart(token, bookId);
         Response response = new Response(cart, "Books Added Into Cart Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    //--------------------------------- Update Cart Data (Only User)---------------------------------
-    @PutMapping("UpdateBookCart")
-    public ResponseEntity<Response> updateBookCart(@RequestHeader String token, @RequestParam int bookId, @RequestParam int qty) {
-        CartBooksData cart = icartService.updateBooksOfCart(token,bookId,qty);
+    //--------------------------------- Increase BookQty (Only User)---------------------------------
+    @PutMapping("IncreaseBookQty")
+    public ResponseEntity<Response> increaseBookQty(@RequestParam String token, @RequestParam int bookId) {
+        CartBooksData cart = icartService.increaseBookQty(token,bookId);
+        Response response = new Response(cart, "Book Quantity Update Into Cart Successful");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //--------------------------------- Decrease BookQty (Only User)---------------------------------
+    @PutMapping("DecreaseBookQty")
+    public ResponseEntity<Response> decreaseBookQty(@RequestParam String token, @RequestParam int bookId) {
+        CartBooksData cart = icartService.decreaseBookQty(token,bookId);
         Response response = new Response(cart, "Book Quantity Update Into Cart Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //--------------------------------- Delete Cart Data (Only User)---------------------------------
     @DeleteMapping("/Remove_Book_From_Cart")
-    public ResponseEntity<Response> removeBookFromCart(@RequestHeader String token, @RequestParam int cartBookId) {
+    public ResponseEntity<Response> removeBookFromCart(@RequestParam String token, @RequestParam int cartBookId) {
         icartService.removeBookFromCart(token,cartBookId);
         Response response = new Response("Removed Book for id: " + cartBookId, "Book Remove Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -46,7 +54,7 @@ public class CartController {
 
     //--------------------------------- Show Cart Data(Books) ---------------------------------
     @GetMapping("/Show_Cart_Record")
-    public ResponseEntity<Response> showUserCartRecords(@RequestHeader String token) {
+    public ResponseEntity<Response> showUserCartRecords(@RequestParam String token) {
         List<CartBooksData> cartRecord = icartService.showCartRecord(token);
         Response response = new Response(cartRecord, "Cart record retrieved successfully for User");
         return new ResponseEntity<>(response, HttpStatus.OK);

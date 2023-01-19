@@ -63,7 +63,7 @@ public class CartService implements IcartService {
 
     //--------------------------------- Update Cart Book qty (Only User)------------------------------------------------------------------
     @Override
-    public CartBooksData updateBooksOfCart(String token, int bookId, int qty) {
+    public CartBooksData increaseBookQty(String token, int bookId) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         CartModel cartModel = cartRepository.findById(user.getCartModel().getCartId()).get();
@@ -71,14 +71,29 @@ public class CartService implements IcartService {
             BookModel book = bookRepository.findById(bookId).get();
             CartBooksData cartBooks = cartBooksRepository.findByCartIdAndBookId(cartModel.getCartId(), bookId);
             if (cartBooks != null) {
-                if (qty <= book.getBookQuantity()) {
-                    double totalPrice = calculateTotalPrice(qty, book.getPrice());
-                    cartBooks.setQuantity(qty);
-                    cartBooks.setTotalPrice(totalPrice);
-                    return cartBooksRepository.save(cartBooks);
-                }
-                throw new BookStoreException(qty+ " Books Not available in Stock"+
-                        "\nOnly "+ book.getBookQuantity()+" Books available in stock");
+                double totalPrice = calculateTotal(cartBooks.getQuantity(), book.getPrice());
+                cartBooks.setQuantity(cartBooks.getQuantity() + 1);
+                cartBooks.setTotalPrice(totalPrice);
+                return cartBooksRepository.save(cartBooks);
+            }
+            throw new BookStoreException("Book Not Found in Cart");
+        }
+        throw new BookStoreException("Please first Login Application");
+    }
+
+    @Override
+    public CartBooksData decreaseBookQty(String token, int bookId) {
+        LoginDTO loginDTO = jwtUtils.decodeToken(token);
+        UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
+        CartModel cartModel = cartRepository.findById(user.getCartModel().getCartId()).get();
+        if (user.isLogin()) {
+            BookModel book = bookRepository.findById(bookId).get();
+            CartBooksData cartBooks = cartBooksRepository.findByCartIdAndBookId(cartModel.getCartId(), bookId);
+            if (cartBooks != null) {
+                double totalPrice = calculateTotalPrice(cartBooks.getQuantity(), book.getPrice());
+                cartBooks.setQuantity(cartBooks.getQuantity() - 1);
+                cartBooks.setTotalPrice(totalPrice);
+                return cartBooksRepository.save(cartBooks);
             }
             throw new BookStoreException("Book Not Found in Cart");
         }
@@ -86,7 +101,11 @@ public class CartService implements IcartService {
     }
 
     private double calculateTotalPrice(int quantity, int bookPrice){
-        return quantity * bookPrice;
+        return (quantity-1) * bookPrice;
+    }
+
+    private double calculateTotal(int quantity, int bookPrice){
+        return (quantity+1) * bookPrice;
     }
 
     //--------------------------------- Delete Cart Data (Only User)-----------------------------------------------------------------
@@ -119,9 +138,6 @@ public class CartService implements IcartService {
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         if (user.isLogin()) {
             List<CartBooksData> availableBooksInCart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
-            if (availableBooksInCart.isEmpty()) {
-                throw new BookStoreException("Empty Cart");
-            }
             return availableBooksInCart;
         }
         throw new BookStoreException("Please first Login Application");

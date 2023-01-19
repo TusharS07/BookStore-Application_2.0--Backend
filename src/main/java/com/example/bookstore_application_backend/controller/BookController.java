@@ -30,14 +30,14 @@ public class BookController {
 
     //----------------------------- Update Books Data (Only Admin)------------------------------------------------------------------
     @PutMapping("/Update_Books_Data/Admin")
-    public ResponseEntity<Response> updateBook(@RequestHeader String token,@RequestParam int id, @RequestBody BookDTO bookDTO) {
+    public ResponseEntity<Response> updateBook(@RequestParam String token,@RequestParam int id, @RequestBody BookDTO bookDTO) {
         BookModel update = ibookService.updateBooksData(token,id,bookDTO);
         Response response = new Response(update, "Book Update Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     //--------------------------------- Delete Book Data (Only Admin)------------------------------------------------------------------
     @DeleteMapping("/Delete_Book/Admin")
-    public ResponseEntity<Response> deleteBook(@RequestHeader String token, @RequestParam int id) {
+    public ResponseEntity<Response> deleteBook(@RequestParam String token, @RequestParam int id) {
         ibookService.deleteBookById(token, id);
         Response response = new Response("book deleted for id :" +id+" ", "Book delete Successful");
         return new ResponseEntity<>(response, HttpStatus.OK);

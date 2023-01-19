@@ -159,7 +159,7 @@ public class OrderService implements IorderService {
             if (orderRepository.findById(orderId).isPresent()) {
                 OrderModel order = orderRepository.findById(orderId).get();
                 if (order.getUserId() == user.getId()) {
-                    if (order.getIsCancel() == false) {
+                    if (!order.getIsCancel()) {
                         order.setIsCancel(true);
                         orderRepository.save(order);
                         emailService.sendMail(user.getEmail(),"Hi " + user.getFirstName() + " " + user.getLastName()+ ","+
