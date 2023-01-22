@@ -138,7 +138,30 @@ public class CartService implements IcartService {
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         if (user.isLogin()) {
             List<CartBooksData> availableBooksInCart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
+
             return availableBooksInCart;
+        }
+        throw new BookStoreException("Please first Login Application");
+    }
+
+    @Override
+    public double[] showTotalAmount_Qty(String token) {
+        LoginDTO loginDTO = jwtUtils.decodeToken(token);
+        UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
+        if (user.isLogin()) {
+            List<CartBooksData> cartData = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
+            double totalOrderPrice = 0;
+            int totalOrderQty = 0;
+
+            for (int i = 0; i < cartData.size(); i++) {
+                totalOrderPrice = totalOrderPrice + cartData.get(i).getTotalPrice();
+                totalOrderQty = totalOrderQty + cartData.get(i).getQuantity();
+            }
+            double [] cartBookAmount = new double[2];
+            cartBookAmount[0] = totalOrderPrice;
+            cartBookAmount[1] = totalOrderQty;
+
+            return cartBookAmount;
         }
         throw new BookStoreException("Please first Login Application");
     }

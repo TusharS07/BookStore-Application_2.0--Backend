@@ -32,7 +32,7 @@ public class CartController {
     @PutMapping("IncreaseBookQty")
     public ResponseEntity<Response> increaseBookQty(@RequestParam String token, @RequestParam int bookId) {
         CartBooksData cart = icartService.increaseBookQty(token,bookId);
-        Response response = new Response(cart, "Book Quantity Update Into Cart Successful");
+        Response response = new Response(cart, "You've changed '"+cart.getBooks().getBookName()+"' QUANTITY to '"+cart.getQuantity()+"'");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -40,7 +40,7 @@ public class CartController {
     @PutMapping("DecreaseBookQty")
     public ResponseEntity<Response> decreaseBookQty(@RequestParam String token, @RequestParam int bookId) {
         CartBooksData cart = icartService.decreaseBookQty(token,bookId);
-        Response response = new Response(cart, "Book Quantity Update Into Cart Successful");
+        Response response = new Response(cart, "You've changed '"+cart.getBooks().getBookName()+"' QUANTITY to '"+cart.getQuantity()+"'");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -57,6 +57,16 @@ public class CartController {
     public ResponseEntity<Response> showUserCartRecords(@RequestParam String token) {
         List<CartBooksData> cartRecord = icartService.showCartRecord(token);
         Response response = new Response(cartRecord, "Cart record retrieved successfully for User");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    //--------------------------------- Get_Total-Cart_Amount-Qty ---------------------------------
+
+    @GetMapping("/Get_Total-Cart_Amount-Qty")
+    public ResponseEntity<Response> GetTotalCartAmountQty(@RequestParam String token) {
+        double[] cartData = icartService.showTotalAmount_Qty(token);
+        Response response = new Response(cartData, "Cart record retrieved successfully for User");
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }

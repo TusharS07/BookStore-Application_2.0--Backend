@@ -50,78 +50,83 @@ public class OrderService implements IorderService {
     public OrderModel placeOrder(String token, OrderDTO orderDTO) {
         LoginDTO loginDTO = jwtUtils.decodeToken(token);
         UserModel user = userRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
+        List<CartBooksData> cart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
         if (user.isLogin()) {
-            List<CartBooksData> cart = cartBooksRepository.findByCart_CartId(user.getCartModel().getCartId());
-            List<BookModel> orderedBooks = new ArrayList<>();
+            if (cart.isEmpty()) {
+                throw new BookStoreException("Empty Cart");
+            } else {
+                List<BookModel> orderedBooks = new ArrayList<>();
 
-            double totalOrderPrice = 0;
-            int totalOrderQty = 0;
+                double totalOrderPrice = 0;
+                int totalOrderQty = 0;
 
-            for (int i = 0; i < cart.size(); i++) {
-                totalOrderPrice = totalOrderPrice + cart.get(i).getTotalPrice();
-                totalOrderQty = totalOrderQty + cart.get(i).getQuantity();
-                orderedBooks.add(cart.get(i).getBooks());
+                for (int i = 0; i < cart.size(); i++) {
+                    totalOrderPrice = totalOrderPrice + cart.get(i).getTotalPrice();
+                    totalOrderQty = totalOrderQty + cart.get(i).getQuantity();
+                    orderedBooks.add(cart.get(i).getBooks());
+                }
+
+                //for new Address
+                OrderModel orderModel = modelMapper.map(orderDTO, OrderModel.class);
+
+                orderModel.setUserId(user.getId());
+                orderModel.setBook(orderedBooks);
+                orderModel.setOrderQuantity(totalOrderQty);
+                orderModel.setPrice(totalOrderPrice);
+
+
+                //for getting default address
+                if (orderModel.getFirstName() == null) {
+                    orderModel.setFirstName(user.getFirstName());
+                }
+                if (orderModel.getLastName() == null) {
+                    orderModel.setLastName(user.getLastName());
+                }
+                if (orderModel.getPhoneNo() == null) {
+                    orderModel.setPhoneNo(user.getPhoneNo());
+                }
+                if (orderModel.getPinCode() == null) {
+                    orderModel.setPinCode(user.getPinCode());
+                }
+                if (orderModel.getLocality() == null) {
+                    orderModel.setLocality(user.getLocality());
+                }
+                if (orderModel.getAddress() == null) {
+                    orderModel.setAddress(user.getAddress());
+                }
+                if (orderModel.getCity() == null) {
+                    orderModel.setCity(user.getCity());
+                }
+                if (orderModel.getLandMark() == null) {
+                    orderModel.setLandMark(user.getLandMark());
+                }
+                if (orderModel.getAddressType() == null) {
+                    orderModel.setAddressType(user.getAddressType());
+                }
+
+                orderRepository.save(orderModel);
+
+                //sending order confirmation mail to user
+                emailService.sendMail(user.getEmail(), "Hi " + user.getFirstName() + " " + user.getLastName() + "," +
+                        "\n\nYour Order Placed Successful" +
+                        "\nOrder Id: " + orderModel.getOrderId() +
+                        "\nThe Order will delivered to you with in two days." +
+                        "\n\nWe have attached your invoice should you need it in the future." +
+                        "\n\n\nThank you for shopping!" +
+                        "\nBookStore");
+
+                for (int i = 0; i < cart.size(); i++) {
+                    BookModel book = cart.get(i).getBooks();
+                    int updatedQty = updateBookQty(book.getBookQuantity(), cart.get(i).getQuantity());
+                    book.setBookQuantity(updatedQty);
+                    bookRepository.save(book);
+
+                    //delete from cart
+                    cartBooksRepository.deleteById(cart.get(i).getCartBookId());
+                }
+                return orderModel;
             }
 
-            //for new Address
-            OrderModel orderModel = modelMapper.map(orderDTO, OrderModel.class);
-
-            orderModel.setUserId(user.getId());
-            orderModel.setBook(orderedBooks);
-            orderModel.setOrderQuantity(totalOrderQty);
-            orderModel.setPrice(totalOrderPrice);
-
-
-            //for getting default address
-            if (orderModel.getFirstName() == null) {
-                orderModel.setFirstName(user.getFirstName());
-            }
-            if (orderModel.getLastName() == null) {
-                orderModel.setLastName(user.getLastName());
-            }
-            if (orderModel.getPhoneNo() == null) {
-                orderModel.setPhoneNo(user.getPhoneNo());
-            }
-            if (orderModel.getPinCode() == null) {
-                orderModel.setPinCode(user.getPinCode());
-            }
-            if (orderModel.getLocality() == null) {
-                orderModel.setLocality(user.getLocality());
-            }
-            if (orderModel.getAddress() == null) {
-                orderModel.setAddress(user.getAddress());
-            }
-            if (orderModel.getCity() == null) {
-                orderModel.setCity(user.getCity());
-            }
-            if (orderModel.getLandMark() == null) {
-                orderModel.setLandMark(user.getLandMark());
-            }
-            if (orderModel.getAddressType() == null) {
-                orderModel.setAddressType(user.getAddressType());
-            }
-
-            orderRepository.save(orderModel);
-
-            //sending order confirmation mail to user
-            emailService.sendMail(user.getEmail(), "Hi " + user.getFirstName() + " " + user.getLastName() + "," +
-                    "\n\nYour Order Placed Successful" +
-                    "\nOrder Id: " + orderModel.getOrderId() +
-                    "\nThe Order will delivered to you with in two days." +
-                    "\n\nWe have attached your invoice should you need it in the future." +
-                    "\n\n\nThank you for shopping!" +
-                    "\nBookStore");
-
-            for (int i = 0; i < cart.size(); i++) {
-                BookModel book = cart.get(i).getBooks();
-                int updatedQty = updateBookQty(book.getBookQuantity(), cart.get(i).getQuantity());
-                book.setBookQuantity(updatedQty);
-                bookRepository.save(book);
-
-                //delete from cart
-                cartBooksRepository.deleteById(cart.get(i).getCartBookId());
-            }
-            return orderModel;
         }
         throw new BookStoreException("Please sign in your account");
     }

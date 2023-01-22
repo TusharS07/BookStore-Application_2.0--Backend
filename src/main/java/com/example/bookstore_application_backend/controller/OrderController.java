@@ -25,7 +25,10 @@ public class OrderController {
     @PostMapping("/placeOrder")
     public ResponseEntity<Response> placeOrder(@RequestParam String token, @Valid @RequestBody OrderDTO orderDTO) {
         OrderModel orderModel = iorderService.placeOrder(token, orderDTO);
-        Response response = new Response(orderModel, "Order Placed Successfully");
+        Response response = new Response(orderModel, "Order Placed Successful..." +
+                                                             "\nThank you for your order! " +
+                                                             "\nYour order number is #"+orderModel.getOrderId()+". We have emailed your order " +
+                                                             "\nconfirmation, and will send you an update when your order has shipped.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

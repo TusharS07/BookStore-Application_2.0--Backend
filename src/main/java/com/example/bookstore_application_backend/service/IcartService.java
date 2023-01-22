@@ -18,6 +18,8 @@ public interface IcartService {
     String removeBookFromCart(String token, int cartBookId); // remove Book From Cart
 
     List<CartBooksData> showCartRecord(String token);
+    double [] showTotalAmount_Qty(String token);
+
 
 
 }
