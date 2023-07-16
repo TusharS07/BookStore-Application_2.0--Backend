@@ -4,6 +4,7 @@ package com.example.bookstore_application_backend.service;
 
 import com.example.bookstore_application_backend.dto.BookDTO;
 import com.example.bookstore_application_backend.model.BookModel;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

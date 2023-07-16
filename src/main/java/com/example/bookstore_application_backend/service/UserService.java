@@ -55,7 +55,7 @@ public class UserService implements IuserService{
                 userModel.setLogin(true);
                 userModel.setId(userModel.getId());
                 userRepository.save(userModel);
-                //emailService.sendMail(loginDTO.getEmail(), "Login Successful");
+                emailService.sendMail(loginDTO.getEmail(), "Login Successful");
                 obj[0] = token;
                 obj[1] = userModel.getRole();
                 return obj;

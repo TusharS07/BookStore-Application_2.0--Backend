@@ -25,7 +25,7 @@ public class OrderController {
     @PostMapping("/placeOrder")
     public ResponseEntity<Response> placeOrder(@RequestParam String token, @Valid @RequestBody OrderDTO orderDTO) {
         OrderModel orderModel = iorderService.placeOrder(token, orderDTO);
-        Response response = new Response(orderModel, "Order Placed Successful..." +
+        Response response = new Response(orderModel, "Order Placed Successfully!!!" +
                                                              "\nThank you for your order! " +
                                                              "\nYour order number is #"+orderModel.getOrderId()+". We have emailed your order " +
                                                              "\nconfirmation, and will send you an update when your order has shipped.");
@@ -57,7 +57,7 @@ public class OrderController {
     }
 
     //--------------------------------- Cancel Order (Only user) -----------------------------------------------------------------------------------
-    @PutMapping("/Cancel_Order")
+    @PostMapping("/Cancel_Order")
     public ResponseEntity<Response> cancelOrder(@RequestParam String token, @RequestParam int orderId) {
         iorderService.cancelOrder(token, orderId);
         Response response = new Response("Cancel order for Order id: " + orderId, "You've successfully cancelled your order");
